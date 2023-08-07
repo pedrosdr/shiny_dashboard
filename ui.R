@@ -40,7 +40,7 @@ body = dashboardBody(
                          max = max(data$ANO),
                          value = (mean(data$ANO) + sd(data$ANO)) %>% ceiling(),
                          sep=''),
-             checkboxInput('idMostrarTodosAnos', 'Mostrar todos os anos: ', TRUE)
+             checkboxInput('idMostrarTodosAnos', 'Mostrar todos os anos', TRUE)
       ),
       column(width=6,
              checkboxGroupInput('idOpcionais',
