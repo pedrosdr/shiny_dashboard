@@ -1,10 +1,20 @@
 source('util.R')
 
-header = dashboardHeader(title='Vendas Automóveis')
+header = dashboardHeader(title='Automóveis')
 
 sidebar = dashboardSidebar()
 
 body = dashboardBody(
+  fluidRow(
+    column(width=12,
+        infoBox(
+          title='Número de Registros', 
+          subtitle=paste('registros de um total de', nrow(data)), 
+          value=textOutput('registros'), 
+          color='navy'
+        )
+    )
+  ),
   # Filter line
   box(width='100%',
     fluidRow( 
@@ -45,11 +55,32 @@ body = dashboardBody(
   # Charts line
   box(width='100%',
     fluidRow(
-      column(width=6,
+      column(width=7,
              plotlyOutput('mediana_valor')
       ),
-      column(width=6,
+      column(width=5,
              plotlyOutput('boxplot_preco'))
+    ),
+    
+    fluidRow(
+      column(width=7,
+             plotlyOutput('km_valor')
+      ),
+      column(width=5,
+             plotlyOutput('grafico_tipo_anuncio')
+      )
+    ),
+    
+    fluidRow(
+      column(width=3,
+            plotlyOutput('pie_cambio')
+      ),
+      column(width=3,
+             plotlyOutput('pie_direcao')
+      ),
+      column(width=6,
+             plotlyOutput('quantidade_por_cor')
+      )
     )
   ) # End Charts line
 )

@@ -37,8 +37,11 @@ function(input, output, session) {
     }, ignoreNULL=FALSE
   )
   
-  output$mediana_valor = renderPlotly(
-    {
+  output$registros = renderText({
+    nrow(s())
+  })
+  
+  output$mediana_valor = renderPlotly({
       mediana_data <- s()  %>%
         group_by(DATA_COLETA_METADADOS, UF) %>%
         summarise(MEDIANA = median(VALOR))
@@ -53,11 +56,9 @@ function(input, output, session) {
           scale_color_brewer(palette = 'Dark2'),
         tooltip = c('text')
       )
-    }
-  )
+  })
   
-  output$boxplot_preco = renderPlotly(
-    {
+  output$boxplot_preco = renderPlotly({
       ggplotly(
         s() %>%
           ggplot() +
@@ -66,6 +67,67 @@ function(input, output, session) {
           scale_fill_brewer(palette = 'Set1') +
           theme(legend.position = "none")
       )
-    }
-  )
+  })
+  
+  output$km_valor = renderPlotly({
+    ggplotly(
+      s() %>%
+        ggplot() +
+        geom_point(aes(x=QUILOMETRAGEM, y=VALOR, color=UF)) +
+        ggtitle('Distribuição do valor e quilometragem por UF') +
+        scale_color_brewer(palette = 'Set1')
+    )
+  })
+  
+  output$grafico_tipo_anuncio = renderPlotly({
+    ggplotly(
+      s() %>%
+        ggplot(aes(x=TIPO_ANUNCIO, y=VALOR, fill=UF)) +
+        geom_boxplot() +
+        xlab('TIPO DE ANÚNCIO') +
+        ggtitle('Variação de preço por tipo de anúncio') +
+        scale_fill_brewer(palette = 'Set1')
+    ) %>% layout(boxmode = 'group')
+  })
+  
+  output$pie_cambio = renderPlotly({
+    
+    freq_cambio = s() %>%
+      group_by(CAMBIO) %>%
+      summarise(QTD = n()) %>%
+      mutate(PROP = QTD / sum(QTD)) %>%
+      mutate(YPOS = cumsum(PROP) - 0.5 * PROP)
+    
+    plot_ly(freq_cambio, labels = ~CAMBIO, values = ~PROP,
+            type = 'pie', textinfo = 'label+percent', showlegend = FALSE) %>%
+      layout(title = 'Frequência por câmbio')
+  })
+  
+  output$pie_direcao = renderPlotly({
+    
+    freq_direcao <- s() %>%
+      group_by(DIRECAO) %>%
+      summarise(QTD = n()) %>%
+      mutate(PROP = QTD / sum(QTD)) %>%
+      mutate(YPOS = cumsum(PROP) - 0.5 * PROP)
+    
+    plot_ly(freq_direcao, labels = ~DIRECAO, values = ~PROP,
+            type = 'pie', showlegend=FALSE) %>%
+      layout(title='Frequência por direção')
+  })
+  
+  output$quantidade_por_cor = renderPlotly({
+    ggplotly(
+      s() %>%
+        group_by(COR) %>%
+        summarise(QTD = n()) %>%
+        ggplot(aes(x = reorder(COR, -QTD), y = QTD, fill=-QTD,
+                   text=paste('Cor: ', COR, '\nQtd.: ', QTD))) +
+        geom_col() +
+        xlab('COR') +
+        ggtitle('Quantidade por cor') +
+        theme(legend.position = "none"),
+      tooltip = c('text')
+    )
+  })
 }
